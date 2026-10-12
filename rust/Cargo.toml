@@ -1,0 +1,14 @@
+[package]
+name = "video-denoise"
+version = "0.1.0"
+edition = "2024"
+description = "Local drag-and-drop video denoiser (Rust port of VideoDenoise.ps1)"
+
+[dependencies]
+eframe = { version = "0.36", default-features = false, features = ["default_fonts", "glow"] }
+egui = "0.36"
+# pinned like a release candidate should be; DirectML runs on NVIDIA, AMD and Intel GPUs
+ort = { version = "=2.0.0-rc.13", features = ["directml"] }
+rfd = "0.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
