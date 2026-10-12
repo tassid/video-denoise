@@ -1,77 +1,77 @@
 # Video Denoise
 
-App local para Windows que remove ruído visual de vídeos. Arrasta o vídeo, escolhe um preset, clica em Start. Nada sai da máquina.
+A local Windows app that removes visual noise from videos. Drop a video, pick a preset, click Start. Nothing leaves your machine.
 
-A interface é um script PowerShell (WinForms) em cima do `ffmpeg`; o motor de IA é um script Python com PyTorch rodando na GPU.
+The interface is a PowerShell (WinForms) script on top of `ffmpeg`; the AI engine is a Python script running PyTorch on the GPU.
 
-## Requisitos
+## Requirements
 
 - Windows 10/11
-- [ffmpeg](https://ffmpeg.org/) no PATH: `winget install Gyan.FFmpeg`
-- Para o método **AI**: placa NVIDIA (testado em RTX 5060 Ti, 8 GB), Python 3.13 ou [uv](https://docs.astral.sh/uv/), ~5 GB de disco
+- [ffmpeg](https://ffmpeg.org/) on the PATH: `winget install Gyan.FFmpeg`
+- For the **AI** method: an NVIDIA card (tested on an RTX 5060 Ti, 8 GB), Python 3.13 or [uv](https://docs.astral.sh/uv/), about 5 GB of disk
 
-## Instalação
+## Install
 
 ```powershell
 git clone https://github.com/tassid/video-denoise.git
 cd video-denoise
-powershell -ExecutionPolicy Bypass -File .\setup.ps1   # só para o método AI (~3 GB)
+powershell -ExecutionPolicy Bypass -File .\setup.ps1   # only for the AI method (~3 GB)
 ```
 
-Abrir com duplo clique em `Video Denoise.bat`.
+Start it by double-clicking `Video Denoise.bat`.
 
-Sem rodar o `setup.ps1` o app funciona, apenas sem o método AI.
+Without running `setup.ps1` the app still works, just without the AI method.
 
-## Uso
+## Usage
 
-1. Solte um ou mais vídeos na janela (ou clique na área para procurar).
-2. Escolha um **Preset** ou ajuste os controles.
-3. **Preview** mostra antes/depois de um frame, em 100%. `Preview at` escolhe o instante (`90`, `1:30`, `0:01:30`; vazio = meio do vídeo).
-4. Marque **Test: first 10 s only** para experimentar antes de processar tudo.
-5. **Start**. O resultado fica ao lado do original como `nome_denoised.mp4`. O original nunca é alterado nem sobrescrito.
+1. Drop one or more videos on the window (or click the drop area to browse).
+2. Pick a **Preset** or adjust the controls.
+3. **Preview** shows a before/after of one frame at 100%. `Preview at` picks the moment (`90`, `1:30`, `0:01:30`; empty = middle of the video).
+4. Tick **Test: first 10 s only** to try settings before processing everything.
+5. **Start**. The result is written next to the original as `name_denoised.mp4`. The original is never modified or overwritten.
 
-### Controles
+### Controls
 
-| Controle | O que faz |
+| Control | What it does |
 |---|---|
-| Method | `Fast` (hqdn3d), `Best quality` (nlmeans, lento, CPU) ou `AI` (DRUNet, GPU) |
-| Strength | Quanto ruído remover. Alto demais apaga textura. |
-| Sharpen | Nitidez após o denoise, só na luminância. |
-| Keep detail | Devolve parte do detalhe original por cima do resultado. No AI é seletivo: quase tudo em áreas com textura, quase nada em áreas lisas. |
-| Soft / zoomed source | Para vídeo recortado/ampliado, com grão grosso: processa em metade do tamanho e amplia de volta. Só AI. |
-| Enhance | Reconstrói detalhe com Real-ESRGAN. **Inventa detalhe**: bom em objetos, pode alterar sutilmente rostos reais. Só AI, desligado nos presets para pessoas. |
-| Encoder | H.264 na CPU (compatível) ou HEVC na GPU NVIDIA (mais rápido). |
+| Method | `Fast` (hqdn3d), `Best quality` (nlmeans, slow, CPU) or `AI` (DRUNet, GPU) |
+| Strength | How much noise to remove. Too high wipes out texture. |
+| Sharpen | Sharpening after the denoise, luma only. |
+| Keep detail | Puts part of the original detail back on top of the result. With AI it is selective: almost all of it in textured areas, almost none in flat ones. |
+| Soft / zoomed source | For footage that was cropped/enlarged and has coarse grain: processes at half size and scales back. AI only. |
+| Enhance | Reconstructs detail with Real-ESRGAN. **It invents detail**: fine on objects, can subtly change real faces. AI only, off in the presets meant for people. |
+| Encoder | H.264 on the CPU (most compatible) or HEVC on the NVIDIA GPU (faster). |
 
 ### Presets
 
-Os presets de fábrica não podem ser alterados. **Save...** grava os ajustes atuais com um nome seu (em `presets.json`, ao lado do app); **Delete** apaga um preset seu.
+Built-in presets cannot be changed. **Save...** stores the current settings under a name of your own (in `presets.json`, next to the app); **Delete** removes one of yours.
 
-## Velocidade (RTX 5060 Ti)
+## Speed (RTX 5060 Ti)
 
-| Caso | Aproximado |
+| Case | Roughly |
 |---|---|
 | AI, 1080p | 3 fps |
 | AI + Soft source + Enhance, 1080x1920 | 6 fps |
-| AI, 4K | 0,6 fps |
-| Fast | perto de tempo real |
+| AI, 4K | 0.6 fps |
+| Fast | close to real time |
 
-## Limites conhecidos
+## Known limits
 
-- Denoise não cria nitidez. Se o vídeo original já está borrado (zoom, foco), só `Enhance` melhora a aparência, e ele reconstrói, não recupera.
-- Presets `Natural` e `Heavy noise` são pontos de partida, não foram calibrados em muito material.
-- Saída sempre em 4:2:0 (8 ou 10 bits conforme a origem).
+- Denoising does not create sharpness. If the source is already soft (zoom, missed focus), only `Enhance` improves how it looks, and it reconstructs detail rather than recovering it.
+- The `Natural` and `Heavy noise` presets are starting points; they were not tuned on much footage.
+- Output is always 4:2:0 (8 or 10 bit, following the source).
 
-## Modelos
+## Models
 
-Baixados pelo `setup.ps1` dos repositórios oficiais, não redistribuídos aqui:
+Downloaded by `setup.ps1` from the official repositories, not redistributed here:
 
 - DRUNet — [cszn/KAIR](https://github.com/cszn/KAIR) (MIT)
 - Real-ESRGAN `realesr-general-x4v3` — [xinntao/Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) (BSD-3-Clause)
 
-## Teste sem tela
+## Headless test
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\VideoDenoise.ps1 -AutoRun clip.mp4 -AutoRunOpts "test,s=2,d=8"
 ```
 
-Roda preview + processamento com a janela real, imprime o log e sai com código 0 em caso de sucesso. Uma captura da janela fica em `%TEMP%\VideoDenoise\ui.png`.
+Runs preview + processing through the real window, prints the log and exits with code 0 on success. A snapshot of the window is saved to `%TEMP%\VideoDenoise\ui.png`.
