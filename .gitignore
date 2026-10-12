@@ -5,3 +5,7 @@ __pycache__/
 
 # personal presets saved from the app
 presets.json
+
+# Rust port
+rust/target/
+ai/models/*.onnx
