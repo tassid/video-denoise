@@ -1,0 +1,7 @@
+# created by setup.ps1
+ai/venv/
+ai/models/*.pth
+__pycache__/
+
+# personal presets saved from the app
+presets.json
